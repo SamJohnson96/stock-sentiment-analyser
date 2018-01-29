@@ -6,8 +6,9 @@ import zipfile
 import glob
 import operator
 import glob
-import pandas as pd
 
+gdelt_base_url = 'http://data.gdeltproject.org/events/'
+fips_country_code = 'US'
 
 def get_dictionary_of_words(list_of_words_path):
     """Method that retrieves the dictionary.txt file and turns it into a list.
@@ -29,13 +30,10 @@ def get_dictionary_of_words(list_of_words_path):
 
 
 def get_list_gdelt_files():
-    """Method that retrieves the dictionary.txt file and turns it into a list.
-
-    Args:
-        list_of_words_path (string): The location of the dictionary.txt file on the local machine.
+    """Method that retrieves the list of GDELT files
 
     Returns:
-        array: Array of words extracted from dictionary.txt file that was imported.
+        array: Array of GDELT.zip filenames
 
     """
     page = requests.get(gdelt_base_url + 'index.html')
@@ -45,7 +43,7 @@ def get_list_gdelt_files():
     return [x for x in link_list if str.isdigit(x[0:4])]
 
 
-def download_compressed_file(compressed_file):
+def download_compressed_file(local_path,compressed_file):
     """Method that downloads a given compressed GDELT file
 
     Args:
@@ -55,14 +53,17 @@ def download_compressed_file(compressed_file):
         void
 
     """
+    print'here'
+    print os.path.isfile(local_path + compressed_file)
     # if we dont have the compressed file stored locally, go get it. Keep trying if necessary.
     while not os.path.isfile(local_path + compressed_file):
         print 'downloading file,',
         urllib.urlretrieve(url=gdelt_base_url + compressed_file,
                            filename=local_path + compressed_file)
 
+    return compressed_file
 
-def extract_compressed_file(downloaded_file):
+def extract_compressed_file(local_path,downloaded_file):
     """Method that extracts/unzips a compressed file
 
     Args:
@@ -74,21 +75,29 @@ def extract_compressed_file(downloaded_file):
     """
     # extract the contents of the compressed file to a temporary directory
     print 'extracting file,',
-    z = zipfile.ZipFile(file=local_path + compressed_file, mode='r')
+    z = zipfile.ZipFile(file=local_path + downloaded_file, mode='r')
     z.extractall(path=local_path + 'tmp/')
-    return compressed_file
+    return downloaded_file
 
 # Parse the extracted GDELT file to a CSV file
+def parse_file_to_csv(local_path,outfile_name,extracted_file,fips_country_code,list_of_words):
+    """Method that extracts/unzips a compressed file
 
+    Args:
+        downloaded_file (string): The name of the compressed file that has been downloaded.
 
-def parse_file_to_csv(extracted_file):
+    Returns:
+        compressed_file (string): The name of the compressed file
+
+    """
     # parse each of the csv files in the working directory,
     print 'parsing file'
+    original_zip = extracted_file
     # remove .zip from name so we
     extracted_file = extracted_file[:-4]
     extracted_file_path = local_path + 'tmp/' + extracted_file
     # open the infile and outfile
-    with open(extracted_file_path, mode='r') as infile, open(outfile_name, mode='w') as outfile:
+    with open(extracted_file_path, mode='r') as infile, open(outfile_name, mode='a') as outfile:
         for line in infile:
             # extract lines with our interest country code
             if fips_country_code in operator.itemgetter(51, 37, 44)(line.split('\t')):
@@ -96,40 +105,37 @@ def parse_file_to_csv(extracted_file):
                 if any(word in operator.itemgetter(57)(line.split('\t')) for word in list_of_words):
                     outfile.write(line)
 
-# Make pickle out of the CSV file that has been created.
-
-
-def make_pickle():
-    # Get the GDELT field names from a helper file
-    colnames = pd.read_excel('CSV.header.fieldids.xlsx', sheetname='Sheet1',
-                             index_col='Column ID', parse_cols=1)['Field Name']
-    df_list = []
-    # Build DataFrames from the output file created
-    df_list.append(pd.read_csv(outfile_name, sep='\t', header=None,
-                               dtype=str, names=colnames, index_col=['GLOBALEVENTID']))
-    df = pd.concat(df_list)
-
-    df.to_pickle(local_path + 'backup' + fips_country_code + '.pickle')
+    #delete file
+    os.remove(local_path + 'tmp/' + extracted_file)
+    os.remove(local_path + original_zip)
 
 
 
-# Local configuration
-local_path = '/Users/sam/Desktop/GDELT_Data/'
-outfile_name = '/Users/sam/Desktop/training_data.csv'
 
-# What is being looked for
-fips_country_code = 'US'
-list_of_words_path = '/Users/sam/Desktop/dictionary.txt'
-list_of_words = get_dictionary_of_words(list_of_words_path)
 
-# GDELT configuration
-gdelt_base_url = 'http://data.gdeltproject.org/events/'
-list_of_files = get_list_gdelt_files()
+def get_latest_gdelt_file():
+    """Method that extracts/unzips a compressed file
 
-# Go through the last month of files.
-for x in range(0, 30):
-    compressed_file = list_of_files[x]
-    # unzip the file.
-    parse_file_to_csv(extract_compressed_file(download_compressed_file(compressed_file)))
+    Args:
+        downloaded_file (string): The name of the compressed file that has been downloaded.
 
-make_pickle()
+    Returns:
+        compressed_file (string): The name of the compressed file
+
+    """
+    list_of_files = get_list_gdelt_files()
+    return list_of_files[0]
+
+
+def get_all_training_dataset():
+    """Method that extracts/unzips a compressed file
+
+    Args:
+        downloaded_file (string): The name of the compressed file that has been downloaded.
+
+    Returns:
+        compressed_file (string): The name of the compressed file
+
+    """
+    list_of_files = get_list_gdelt_files()
+    return list_of_files[:500]

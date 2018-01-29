@@ -25,7 +25,6 @@ def parse_all_csv(local_path = '/Users/sam/Desktop/'):
         db_csv_tools.filter_out_duplicates(article_list)
         for article_list in downloaded_articles
     ]
-    print(len(downloaded_articles[0]))
 
     # Create article models
     articles = []
@@ -39,6 +38,9 @@ def parse_all_csv(local_path = '/Users/sam/Desktop/'):
             )
             articles.append(reduced_article)
     return articles
+
+def parse_latest_csv(local_path = '/Users/sam/Desktop/'):
+    db_csv_tools.find_latest_csv()
 
 
 if __name__ == "__main__":
