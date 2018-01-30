@@ -17,7 +17,6 @@ def parse_all_csv(local_path = '/Users/sam/Desktop/'):
     # csv_names = [db_csv_tools.find_csv_filenames(local_path)[0]]
     csv_names = ['training_data.csv']
 
-
     print '--- Creating article arrays ---'
     # Create article arrays
     downloaded_articles = []
@@ -30,6 +29,7 @@ def parse_all_csv(local_path = '/Users/sam/Desktop/'):
         db_csv_tools.filter_out_duplicates(article_list)
         for article_list in downloaded_articles
     ]
+
     print '--- Done ---'
 
     # Create Article models
@@ -49,7 +49,7 @@ if __name__ == "__main__":
     else:
         articles = parse_latest_csv()
 
-    # Session = create_new_session(engine)
-    # session = Session()
-    # session.bulk_save_objects(articles)
-    # session.commit()
+    Session = create_new_session(engine)
+    session = Session()
+    session.bulk_save_objects(articles)
+    session.commit()

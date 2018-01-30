@@ -53,8 +53,6 @@ def download_compressed_file(local_path,compressed_file):
         void
 
     """
-    print'here'
-    print os.path.isfile(local_path + compressed_file)
     # if we dont have the compressed file stored locally, go get it. Keep trying if necessary.
     while not os.path.isfile(local_path + compressed_file):
         print 'downloading file,',
@@ -135,4 +133,4 @@ def get_all_training_dataset():
 
     """
     list_of_files = get_list_gdelt_files()
-    return list_of_files[:500]
+    return list_of_files[:5]

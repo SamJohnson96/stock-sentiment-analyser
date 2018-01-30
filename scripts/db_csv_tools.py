@@ -62,6 +62,7 @@ def filter_out_duplicates(csv_list):
     filtered_csv = []
     for csv in csv_list:
         if csv[0] not in url_list:
+            print 'not a duplicate'
             url_list.append(csv[0])
             filtered_csv.append(csv)
     return filtered_csv

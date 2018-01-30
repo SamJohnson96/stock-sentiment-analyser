@@ -10,13 +10,14 @@ def build_args():
 
 def download_all_training():
     compressed_files = get_all_training_dataset()
+    x = 1
     # Go through the last month of files.
     for compressed in compressed_files:
+        print x
         download_compressed_file(local_path,compressed)
-        print compressed
-        print local_path
         extract_compressed_file(local_path,compressed)
         parse_file_to_csv(local_path,outfile_name,compressed,fips_country_code,list_of_words)
+        x = x + 1
 
 def download_latest_training():
     latest_compressed_file = get_latest_gdelt_file()
