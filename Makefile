@@ -54,7 +54,7 @@ change_nltk_settings:
 zip:
 	cd ./package/tmp && zip -r ../$(PROJECT).zip .
 
-preprocess_create:
+bag_of_words_create:
 	aws lambda create-function \
 		--region $(AWS_REGION) \
 		--role arn:aws:iam::329627156298:role/service-role/lambda_basic \
@@ -67,6 +67,6 @@ preprocess_create:
 
 
 # METHODS
-preprocess_delete:
+bag_of_words_delete:
 	aws lambda delete-function \
 		--function-name $(PREPROCESS_FUNCTION_NAME)
