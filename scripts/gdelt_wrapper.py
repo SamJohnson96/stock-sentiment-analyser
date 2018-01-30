@@ -110,9 +110,6 @@ def parse_file_to_csv(local_path,outfile_name,extracted_file,fips_country_code,l
     os.remove(local_path + original_zip)
 
 
-
-
-
 def get_latest_gdelt_file():
     """Method that extracts/unzips a compressed file
 

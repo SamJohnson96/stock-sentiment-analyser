@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 import argparse
+import article_threading
 from scripts import db_csv_tools
 from models.article import Article
 from models.database_tools import Base, create_all_tables, create_new_engine, setup_database, create_new_session
@@ -16,28 +17,24 @@ def parse_all_csv(local_path = '/Users/sam/Desktop/'):
     # csv_names = [db_csv_tools.find_csv_filenames(local_path)[0]]
     csv_names = ['training_data.csv']
 
+
+    print '--- Creating article arrays ---'
     # Create article arrays
     downloaded_articles = []
     for name in csv_names:
         downloaded_articles.append(db_csv_tools.scrape_csv_file(local_path,name))
+    print '--- Done ---'
 
+    print '--- Removing duplicate URLs ---'
     filtered_articles = [
         db_csv_tools.filter_out_duplicates(article_list)
         for article_list in downloaded_articles
     ]
+    print '--- Done ---'
 
-    # Create article models
-    articles = []
-    for article_list in filtered_articles:
-        print(len(article_list))
-        for article in article_list:
-            reduced_article = Article(
-                source_url = article[0],
-                content = db_csv_tools.get_article_content(article[0]),
-                avg_tone = article[1]
-            )
-            articles.append(reduced_article)
-    return articles
+    # Create Article models
+    return article_threading.process_threads(filtered_articles)
+
 
 def parse_latest_csv(local_path = '/Users/sam/Desktop/'):
     db_csv_tools.find_latest_csv()
@@ -52,7 +49,7 @@ if __name__ == "__main__":
     else:
         articles = parse_latest_csv()
 
-    Session = create_new_session(engine)
-    session = Session()
-    session.bulk_save_objects(articles)
-    session.commit()
+    # Session = create_new_session(engine)
+    # session = Session()
+    # session.bulk_save_objects(articles)
+    # session.commit()
