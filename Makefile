@@ -11,7 +11,7 @@ PREPROCESS_FUNCTION_HANDLER = lambda_handler
 # Default commands
 install: virtual
 
-build_preprocess: clean_package build_package_tmp copy_python remove_unused change_nltk_settings zip
+build_bow: clean_package build_package_tmp copy_python remove_unused change_nltk_settings zip
 
 preprocess_refresh: build_preprocess preprocess_delete preprocess_create
 
