@@ -3,7 +3,7 @@ import logging
 import pymysql
 
 #rds settings
-rds_host  = "arn:aws:rds:eu-west-2:329627156298:db:stockbot"
+rds_host  = "stockbot.c0mj2r8tlwe3.eu-west-2.rds.amazonaws.com"
 name = "admin"
 password = "mypassword"
 db_name = "stockbot"
