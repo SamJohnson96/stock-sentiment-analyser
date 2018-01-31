@@ -11,7 +11,7 @@ PREPROCESS_FUNCTION_HANDLER = lambda_handler
 # Default commands
 install: virtual
 
-build_bow: clean_package build_package_tmp copy_python remove_unused change_nltk_settings zip
+build_bow: clean_package build_package_tmp copy_python download_bow_libraries remove_unused change_nltk_settings zip
 
 bow_refresh: build_bow bow_delete bow_create
 
@@ -39,6 +39,9 @@ copy_python:
 	if test ! -d "$(VIRTUAL_ENV)"; then \
 		cp -a $(VIRTUAL_ENV)/lib/python2.7/site-packages/. ./package/tmp/; \
 	fi
+
+download_bow_libraries:
+	sudo pip install -U pymysql -t ./package/tmp/;
 
 # Removed unused python tools that take up memory
 remove_unused:
