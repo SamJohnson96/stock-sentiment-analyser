@@ -13,7 +13,7 @@ install: virtual
 
 build_bow: clean_package build_package_tmp copy_python remove_unused change_nltk_settings zip
 
-preprocess_refresh: build_preprocess preprocess_delete preprocess_create
+bow_refresh: build_bow bow_delete bow_create
 
 #If the machine doesn't have Virtual Environment, download it.
 virtual:
@@ -54,7 +54,7 @@ change_nltk_settings:
 zip:
 	cd ./package/tmp && zip -r ../$(PROJECT).zip .
 
-bag_of_words_create:
+bow_create:
 	aws lambda create-function \
 		--region $(AWS_REGION) \
 		--role arn:aws:iam::329627156298:role/service-role/lambda_basic \
@@ -66,7 +66,6 @@ bag_of_words_create:
 		--memory-size 128
 
 
-# METHODS
-bag_of_words_delete:
+bow_delete:
 	aws lambda delete-function \
 		--function-name $(PREPROCESS_FUNCTION_NAME)
