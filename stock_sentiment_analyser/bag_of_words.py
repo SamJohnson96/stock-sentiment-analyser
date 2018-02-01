@@ -29,7 +29,7 @@ def lambda_handler(event, context):
     with conn.cursor() as cur:
         cur.execute('insert into users (name) values("Joe")')
         conn.commit()
-        cur.execute("select * from users")
+        cur.execute("SELECT * FROM articles AS r1 JOIN (SELECT CEIL(RAND() * (SELECT MAX(id) FROM articles)) AS id) AS r2 WHERE r1.id >= r2.id ORDER BY r1.id ASC LIMIT 500")
         for row in cur:
             item_count += 1
             logger.info(row)
