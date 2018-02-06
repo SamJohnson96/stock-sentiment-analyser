@@ -50,7 +50,7 @@ def get_rand_training_data():
     with conn.cursor() as cur:
         cur.execute('insert into users (name) values("Joe")')
         conn.commit()
-        cur.execute("SELECT * FROM articles AS r1 JOIN (SELECT CEIL(RAND() * (SELECT MAX(id) FROM articles)) AS id) AS r2 WHERE r1.id >= r2.id ORDER BY r1.id ASC LIMIT 500")
+        cur.execute("SELECT * FROM articles AS r1 JOIN (SELECT CEIL(RAND() * (SELECT MAX(id) FROM articles)) AS id) AS r2 WHERE r1.id >= r2.id ORDER BY r1.id ASC LIMIT 50")
         for row in cur:
             rows.append(row)
     return rows
@@ -97,7 +97,10 @@ def make_feature_set(training_data, vector_keyword_index):
         args.append(make_vector(article,vector_keyword_index))
 
     for training in training_data:
-        results.append(training[4])
+        if training[3] > 0:
+            results.append(1)
+        else:
+            results.append(0)
 
     for x in range(len(training_data)):
         feature_tuple = (args[x],results[x]);
@@ -132,4 +135,4 @@ train_set, test_set = train_test_split(training_data, test_size = 0.2, random_st
 
 # Run model :)
 classifier = nltk.NaiveBayesClassifier.train(train_set)
-print(nltk.classify.accuracy(classifier, test_set)) # test accuracy is 0.753101551116
+print(nltk.classify.accuracy(classifier, test_set))
