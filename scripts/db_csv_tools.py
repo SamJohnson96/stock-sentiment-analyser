@@ -142,10 +142,6 @@ def make_vector(article_content, vector_keyword_index):
 #     articles.append(article)
 
 
-
-
-
-
 #
 # # NLTK extensions
 # ps = PorterStemmer()
