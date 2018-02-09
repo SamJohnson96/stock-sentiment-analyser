@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 import threading
 import time
 from models.article import Article
@@ -7,8 +9,8 @@ from nltk.tokenize import sent_tokenize, word_tokenize
 from nltk.corpus import stopwords
 
 def download_article(article, article_array):
-    print article
-    print 'Downloading %s' %article[0]
+    print(article)
+    print(('Downloading %s' %article[0]))
     a = newspaper_article(article[0])
     a.download()
     a.parse()
@@ -17,17 +19,19 @@ def download_article(article, article_array):
     processed_content = " "
     article_object = Article(
                         source_url = article[0],
-                        content = processed_content.join(preprocessed_text),
+                        content = processed_content.join(preprocessed_text).encode('utf-8'),
                         avg_tone = article[1]
                     )
     article_array.append(article_object)
 
-    print 'Thread finished'
+    print('Thread finished')
 
 def clean(article):
+    article = article.decode('utf-8')
     article = article.replace(".", "")
     article = article.replace("\s+", " ")
     article = article.lower()
+    article.encode('utf-8')
     return article
 
 def remove_stop_words(article):

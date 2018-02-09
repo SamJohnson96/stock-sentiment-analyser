@@ -1,4 +1,6 @@
 #!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
 import argparse
 import article_threading
 from scripts import db_csv_tools
@@ -17,20 +19,20 @@ def parse_all_csv(local_path = '/Users/sam/Desktop/'):
     # csv_names = [db_csv_tools.find_csv_filenames(local_path)[0]]
     csv_names = ['training_data.csv']
 
-    print '--- Creating article arrays ---'
+    print('--- Creating article arrays ---')
     # Create article arrays
     downloaded_articles = []
     for name in csv_names:
         downloaded_articles.append(db_csv_tools.scrape_csv_file(local_path,name))
-    print '--- Done ---'
+    print('--- Done ---')
 
-    print '--- Removing duplicate URLs ---'
+    print('--- Removing duplicate URLs ---')
     filtered_articles = [
         db_csv_tools.filter_out_duplicates(article_list)
         for article_list in downloaded_articles
     ]
 
-    print '--- Done ---'
+    print('--- Done ---')
 
     # Create Article models
     return article_threading.process_threads(filtered_articles)

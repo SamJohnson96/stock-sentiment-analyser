@@ -1,7 +1,3 @@
-def import_training_dataframe():
-    path_to_dataframe = local_path + 'training_set.pickle'
-    return pd.read_pickle(path_to_dataframe)
+from sklearn.datasets import load_iris
 
-
-# Get training data
-training_data = import_training_dataframe()
+iris = load_iris()

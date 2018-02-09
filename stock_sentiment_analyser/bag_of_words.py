@@ -5,6 +5,7 @@ import logging
 import pymysql
 from nltk import word_tokenize
 from sklearn.cross_validation import train_test_split
+from sklearn.feature_extraction.text import CountVectorizer
 
 #rds settings
 rds_host  = "stockbot.c0mj2r8tlwe3.eu-west-2.rds.amazonaws.com"
