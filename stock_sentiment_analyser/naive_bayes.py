@@ -87,10 +87,6 @@ def run_validation_tests(training_data):
     train, test = train_test_split(training_data, test_size=0.1)
     # Run pipeline and get predictions
     prediction = run_pipeline(train, test)
-    
-    print (prediction)
-
-
 
 def run_pipeline(training_data,testing_dataframe):
     """Method that takes an array of training articles and returns them into an organised dataframe
@@ -110,7 +106,7 @@ def run_pipeline(training_data,testing_dataframe):
 
     # Fit and do validation test
     text_clf = text_clf.fit(training_data.content, training_data.tone)
-    predicted = text_clf.predict(testing_dataframe.headline)
+    predicted = text_clf.predict(testing_dataframe.content)
     return predicted
 
 # Training_data
