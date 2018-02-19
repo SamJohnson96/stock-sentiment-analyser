@@ -1,3 +1,4 @@
+import pandas as pd
 import nltk as nltk
 import numpy as np
 import sys
@@ -6,6 +7,10 @@ import pymysql
 from nltk import word_tokenize
 from sklearn.cross_validation import train_test_split
 from sklearn.feature_extraction.text import CountVectorizer
+from sklearn.feature_extraction.text import TfidfTransformer
+from sklearn.naive_bayes import MultinomialNB
+from sklearn.model_selection import train_test_split
+from sklearn.pipeline import Pipeline
 
 #rds settings
 rds_host  = "stockbot.c0mj2r8tlwe3.eu-west-2.rds.amazonaws.com"
@@ -39,6 +44,7 @@ def lambda_handler(event, context):
 
     # From the 'master' feature list, split it into test and training
     train_set, test_set = train_test_split(training_data, test_size = 0.2, random_state=128)
+    #TODO: DEAL WITH AMAZON AWS EVENT
 
     # Run model :)
     classifier = nltk.NaiveBayesClassifier.train(train_set)
@@ -49,91 +55,67 @@ def get_rand_training_data():
     item_count = 0
     rows = []
     with conn.cursor() as cur:
-        cur.execute('insert into users (name) values("Joe")')
-        conn.commit()
-        cur.execute("SELECT * FROM articles AS r1 JOIN (SELECT CEIL(RAND() * (SELECT MAX(id) FROM articles)) AS id) AS r2 WHERE r1.id >= r2.id ORDER BY r1.id ASC LIMIT 50")
+        cur.execute("SELECT * FROM articles AS r1 JOIN (SELECT CEIL(RAND() * (SELECT MAX(id) FROM articles)) AS id) AS r2 WHERE r1.id >= r2.id ORDER BY r1.id ASC LIMIT 100")
         for row in cur:
             rows.append(row)
     return rows
 
-# Remove those duplicate words from word vector list
-def remove_duplicate_words(complete_word_list):
-    return set((item for item in complete_word_list))
+def create_training_dataframe(training_data):
+    """Method that merges all 3 training sets into one dataframe
 
-# Create a whole vectory keyword index based on the given training data
-def create_vector_keyword_index(training_data):
-    # take training data and get contents of each article and place into another array
-    training_data_article_contents = [item[2] for item in training_data]
-    split_articles_list = split_articles(training_data_article_contents)
-    complete_word_list = [item for sublist in split_articles_list for item in sublist]
-    unique_word_list = remove_duplicate_words(complete_word_list)
-    vector_index = {}
-    offset = 0
+    Args:
+        merged_training (Array): Array of articles to place into dataframe
 
-    # Associate a position with the keywords which maps to the dimension on the vector used to represent this word
-    for word in unique_word_list:
-        vector_index[word] = offset
-        offset += 1
-    return vector_index
+    Returns:
+        dataframe: Organised dataframe of all training data
 
-# Method that takes an array of article contents and returns an array of each article split into array
-def split_articles(article_contents):
-    split_articles = []
-    for article in article_contents:
-        article = article.split()
-        split_articles.append(article)
-    return split_articles
-
-def make_feature_set(training_data, vector_keyword_index):
-    # Get articles of training_data
-    training_data_article_contents = [item[2] for item in training_data]
-    # Split the contents of each article content
-    split_articles_list = split_articles(training_data_article_contents)
-
-    args = []
-    results = []
-    feature_set = []
-
-    for article in split_articles_list:
-        args.append(make_vector(article,vector_keyword_index))
-
-    for training in training_data:
-        if training[3] > 0:
-            results.append(1)
+    """
+    classified_data = []
+    for article in training_data:
+        if article[4] < 0:
+            article = article + (0,)
         else:
-            results.append(0)
+            article = article + (1,)
+        classified_data.append(article)
 
-    for x in range(len(training_data)):
-        feature_tuple = (args[x],results[x]);
-        feature_set.append(feature_tuple)
+    df = pd.DataFrame(classified_data)
+    df.columns = ['db_id', 'source_url', 'headline', 'content', 'avg_tone', 'category','added_field','tone']
+    return df
 
-    return feature_set
-
-
-def make_vector(article_content, vector_keyword_index):
-    # Run through each word in train_data
-    vector = {}
-    # Create dictionary with vector_keyword_index
-    for word in vector_keyword_index:
-        vector[word] = 0
-
-    for word in article_content:
-            vector[word] += 1; #Use simple Term Count Model
-    return vector
+def run_validation_tests(training_data):
+    # Split the training_data into two
+    train, test = train_test_split(training_data, test_size=0.1)
+    # Run pipeline and get predictions
+    prediction = run_pipeline(train, test)
+    
+    print (prediction)
 
 
-# Download training_data - An tuple [0] - id [1] - source_url [2] - preprocessed_content [3] - avg_tone
+
+def run_pipeline(training_data,testing_dataframe):
+    """Method that takes an array of training articles and returns them into an organised dataframe
+
+    Args:
+        articles (Array): Array of articles to place into dataframe
+
+    Returns:
+        dataframe: Organised dataframe of all training data
+
+    """
+    # Create pipline
+    text_clf = Pipeline([('vect', CountVectorizer()),
+                         ('tfidf', TfidfTransformer()),
+                         ('clf', MultinomialNB()),
+                        ])
+
+    # Fit and do validation test
+    text_clf = text_clf.fit(training_data.content, training_data.tone)
+    predicted = text_clf.predict(testing_dataframe.headline)
+    return predicted
+
+# Training_data
 training_data = get_rand_training_data()
-
-# Create keyword_index dictionary
-vector_keyword_index = create_vector_keyword_index(training_data)
-
-# Give every article their own vector index
-training_data = make_feature_set(training_data, vector_keyword_index)
-
-# From the 'master' feature list, split it into test and training
-train_set, test_set = train_test_split(training_data, test_size = 0.2, random_state=128)
-
-# Run model :)
-classifier = nltk.NaiveBayesClassifier.train(train_set)
-print(nltk.classify.accuracy(classifier, test_set))
+# Create dataframe from Training_data
+training_data = create_training_dataframe(training_data)
+# Validation tests
+run_validation_tests(training_data)
