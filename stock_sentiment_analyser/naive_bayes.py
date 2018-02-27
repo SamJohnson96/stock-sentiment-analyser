@@ -40,7 +40,7 @@ def classify_new_article(article_content):
 # Insert row into Dynamodb table processed_articles
 def insert_row(article_id,article_content,classification):
     dynamodb = boto3.resource('dynamodb')
-    table = dynamodb.Table('processed_articles')
+    table = dynamodb.Table('results')
     table.put_item(
         Item={
             'article_id' :  int(article_id),
