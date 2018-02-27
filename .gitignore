@@ -1,0 +1,9 @@
+*.pyc
+*.py.bak
+bin/*
+__pycache__/*
+env/*
+envname/*
+include/*
+lib/*
+py
