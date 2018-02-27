@@ -26,6 +26,10 @@ organise_naive_bayes:
 	# Create virtual environment in build/scrape
 	virtualenv -p /usr/bin/python3.4 build/naive_bayes
 
+	# Install dependencies in virtual environment
+	sudo python3 -m pip install -U requests -t build/site-packages/
+	sudo python3 -m pip install -U boto3 -t build/site-packages/
+
 	# Activate the virtual environment
 	. build/naive_bayes/bin/activate; \
 
