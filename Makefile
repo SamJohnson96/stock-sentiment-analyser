@@ -1,74 +1,48 @@
 PROJECT = stock_sentiment_analyser
-VIRTUAL_ENV = env
 AWS_REGION = eu-west-2
+VIRTUAL_ENV = env
 LAMBDA_ROLE = arn:aws:iam::329627156298:role/service-role/lambda_basic
 
-#PREPROCESS FUNCTION
-PREPROCESS_FUNCTION_NAME = arn:aws:lambda:eu-west-2:329627156298:function:Bag_Of_Words
-PREPROCESS_FILE_NAME = bag_of_words
-PREPROCESS_FUNCTION_HANDLER = lambda_handler
+#SCRAPE FUNCTION
+NAIVE_BAYES_FUNCTION_NAME = arn:aws:lambda:eu-west-2:329627156298:function:NaiveBayes
+NAIVE_BAYES_FILE_NAME = naive_bayes
+NAIVE_BAYES_FUNCTION_HANDLER = lambda_handler
 
-# Default commands
-install: virtual
+build_naive_bayes: clean_package organise_naive_bayes
 
-build_bow: clean_package build_package_tmp copy_python download_bow_libraries remove_unused change_nltk_settings zip
+refresh_naive_bayes: build_naive_bayes naive_bayes_delete naive_bayes_create
 
-bow_refresh: build_bow bow_delete bow_create
-
-#If the machine doesn't have Virtual Environment, download it.
-virtual:
-	@echo "--> Setup and activate virtualenv"
-	if test ! -d "$(VIRTUAL_ENV)"; then \
-		pip install virtualenv; \
-		virtualenv $(VIRTUAL_ENV); \
-	fi
-	@echo ""
-
-# Remove everything in the package file
 clean_package:
-	sudo rm -rf ./package/*/**
-	sudo rm -rf ./package/source.zip
+	# Clean the build folder
+	sudo rm -rf build
 
-# Create tmp folder
-build_package_tmp:
-	mkdir -p ./package/tmp/lib
-	cp -a ./$(PROJECT)/. ./package/tmp/
+organise_naive_bayes:
+	# Make site-packages
+	mkdir -p build/site-packages
 
-# Copy python library
-copy_python:
-	if test ! -d "$(VIRTUAL_ENV)"; then \
-		cp -a $(VIRTUAL_ENV)/lib/python2.7/site-packages/. ./package/tmp/; \
-	fi
+	# Move
+	cp stock_sentiment_analyser/naive_bayes.py build/site-packages
 
-download_bow_libraries:
-	sudo pip install -U pymysql -t ./package/tmp/;
+	# Create virtual environment in build/scrape
+	virtualenv -p /usr/bin/python3.4 build/naive_bayes
 
-# Removed unused python tools that take up memory
-remove_unused:
-	rm -rf ./packages/tmp/wheel*
-	rm -rf ./packages/tmp/easy-install*
-	rm -rf ./packages/tmp/setuptools*
+	# Activate the virtual environment
+	. build/naive_bayes/bin/activate; \
 
-# Run script to change location where we look for nltk in the lambda
-change_nltk_settings:
-	sudo python ./$(PROJECT)/helpers/nltk_settings_changer.py
+  # Move to build/site-packages
+	cd build/site-packages; zip -g -r ../naive_bayes.zip . -x "*__pycache__*"
 
-# Zip it up
-zip:
-	cd ./package/tmp && zip -r ../$(PROJECT).zip .
-
-bow_create:
+naive_bayes_create:
 	aws lambda create-function \
 		--region $(AWS_REGION) \
-		--role arn:aws:iam::329627156298:role/service-role/lambda_basic \
-		--function-name $(PREPROCESS_FUNCTION_NAME) \
-		--zip-file fileb://./package/$(PROJECT).zip \
-		--handler $(PREPROCESS_FILE_NAME).$(PREPROCESS_FUNCTION_HANDLER) \
-		--runtime python2.7 \
+		--role $(LAMBDA_ROLE) \
+		--function-name $(NAIVE_BAYES_FUNCTION_NAME) \
+		--zip-file fileb://./build/naive_bayes.zip \
+		--handler $(NAIVE_BAYES_FILE_NAME).$(NAIVE_BAYES_FUNCTION_HANDLER) \
+		--runtime python3.6 \
 		--timeout 15 \
 		--memory-size 128
 
-
-bow_delete:
+naive_bayes_delete:
 	aws lambda delete-function \
-		--function-name $(PREPROCESS_FUNCTION_NAME)
+		--function-name $(NAIVE_BAYES_FUNCTION_NAME)
