@@ -7,8 +7,6 @@ import botocore
 import time
 from datetime import datetime
 
-s3 = boto3.resource('s3')
-
 def lambda_handler(event, context):
     for record in event['Records']:
         if 'NewImage' in record['dynamodb']:
@@ -22,8 +20,13 @@ def lambda_handler(event, context):
 
     if classification is not None:
         print('---- Inserting/Updating row into parsed_articles ----')
-        #Insert into dynamoDb
-        insert_row(article_id,article_content,classification);
+        # Need to check if key exists
+        if check_if_article_exists(article_id):
+            # Update row
+            update_row(article_id,classification)
+        else:
+            #Insert into dynamoDb
+            insert_row(article_id,article_content,classification);
         print('---- Done ----')
 
 def classify_new_article(article_content):
@@ -36,6 +39,15 @@ def classify_new_article(article_content):
     else:
         print ('error occured during api called')
         return None
+
+def check_if_article_exists(article_id):
+    dynamodb = boto3.resource('dynamodb')
+    table = dynamodb.Table('results')
+    response = table.get_item(Key={pk_name: article_id})
+    if 'Item' in response.keys():
+        return True
+    else:
+        return False
 
 # Insert row into Dynamodb table processed_articles
 def insert_row(article_id,article_content,classification):

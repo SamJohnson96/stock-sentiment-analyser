@@ -21,9 +21,14 @@ def lambda_handler(event, context):
     classification = classify_new_article(article_content);
 
     if classification is not None:
-        print('---- Inserting row into parsed_articles ----')
-        #Insert into dynamoDb
-        insert_row(article_id,article_content,classification);
+        print('---- Inserting/Updating row into parsed_articles ----')
+        # Need to check if key exists
+        if check_if_article_exists(article_id):
+            # Update row
+            update_row(article_id,classification)
+        else:
+            #Insert into dynamoDb
+            insert_row(article_id,article_content,classification);
         print('---- Done ----')
 
 def classify_new_article(article_content):
@@ -37,6 +42,15 @@ def classify_new_article(article_content):
         print ('error occured during api called')
         return None
 
+def check_if_article_exists(article_id):
+    dynamodb = boto3.resource('dynamodb')
+    table = dynamodb.Table('results')
+    response = table.get_item(Key={pk_name: article_id})
+    if 'Item' in response.keys():
+        return True
+    else:
+        return False
+=
 # Insert row into Dynamodb table processed_articles
 def insert_row(article_id,article_content,classification):
     dynamodb = boto3.resource('dynamodb')
@@ -47,3 +61,16 @@ def insert_row(article_id,article_content,classification):
             'naive_bayes_classification' : str(classification, 'utf-8')
         }
     )
+
+def update_row(article_id,classification):
+    dynamodb = boto3.resource('dynamodb')
+    table = dynamodb.Table('results')
+    table.update_item(
+    Key={
+        'article_id': int(article_id),
+    },
+    UpdateExpression='SET naive_bayes_classification = :val1',
+    ExpressionAttributeValues={
+        ':val1': str(classification, 'utf-8')
+    }
+)
