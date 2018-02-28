@@ -44,7 +44,7 @@ def insert_row(article_id,article_content,classification):
     table.put_item(
         Item={
             'article_id' :  int(article_id),
-            'naive_bayes_classification' : str(classification, 'utf-8')
+            'support_vector_machine' : str(classification, 'utf-8')
         }
     )
 
