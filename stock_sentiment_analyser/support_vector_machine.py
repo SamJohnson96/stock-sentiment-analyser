@@ -44,7 +44,7 @@ def check_if_article_exists(article_id):
     dynamodb = boto3.resource('dynamodb')
     table = dynamodb.Table('results')
     pk_key = 'article_id'
-    response = table.get_item(Key={pk_name: int(article_id)})
+    response = table.get_item(Key={pk_key: int(article_id)})
     if 'Item' in response.keys():
         return True
     else:
