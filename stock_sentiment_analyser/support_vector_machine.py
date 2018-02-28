@@ -51,6 +51,7 @@ def check_if_article_exists(article_id):
 
 # Insert row into Dynamodb table processed_articles
 def insert_row(article_id,article_content,classification):
+    print('--- inserting row ---')
     dynamodb = boto3.resource('dynamodb')
     table = dynamodb.Table('results')
     table.put_item(
@@ -61,6 +62,7 @@ def insert_row(article_id,article_content,classification):
     )
 
 def update_row(article_id,classification):
+    print('--- updating row ---')
     dynamodb = boto3.resource('dynamodb')
     table = dynamodb.Table('results')
     table.update_item(
