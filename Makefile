@@ -69,7 +69,7 @@ organise_support_vector_machine:
 	sudo python3 -m pip install -U boto3 -t build/site-packages/
 
   # Move to build/site-packages
-	cd build/site-packages; zip -g -r ../naive_bayes.zip . -x "*__pycache__*"
+	cd build/site-packages; zip -g -r ../support_vector_machine.zip . -x "*__pycache__*"
 
 
 # CREATION AWS CLI CALLS FOR EVERY METHOD.
@@ -89,7 +89,7 @@ support_vector_machine_create:
 		--region $(AWS_REGION) \
 		--role $(LAMBDA_ROLE) \
 		--function-name $(SUPPORT_VECTOR_MACHINE_FUNCTION_NAME) \
-		--zip-file fileb://./build/naive_bayes.zip \
+		--zip-file fileb://./build/support_vector_machine.zip \
 		--handler $(SUPPORT_VECTOR_MACHINE_FILE_NAME).$(SUPPORT_VECTOR_MACHINE_HANDLER) \
 		--runtime python3.6 \
 		--timeout 15 \
