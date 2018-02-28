@@ -43,7 +43,8 @@ def classify_new_article(article_content):
 def check_if_article_exists(article_id):
     dynamodb = boto3.resource('dynamodb')
     table = dynamodb.Table('results')
-    response = table.get_item(Key={pk_name: article_id})
+    pk_key = 'article_id'
+    response = table.get_item(Key={pk_key: article_id})
     if 'Item' in response.keys():
         return True
     else:
