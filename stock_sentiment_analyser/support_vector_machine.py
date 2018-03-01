@@ -86,7 +86,6 @@ def update_row(article_id,classification):
         table = dynamodb.Table('apple_article_results')
     elif article_topic = '"t"':
         table = dynamodb.Table('technology_article_results')
-
     table.update_item(
         Key={
             'article_id': int(article_id),
