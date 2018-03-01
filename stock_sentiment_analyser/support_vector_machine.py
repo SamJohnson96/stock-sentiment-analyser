@@ -16,6 +16,11 @@ def lambda_handler(event, context):
             print('No article to scrape')
             return;
     print('---- Parsing article ----')
+
+    if (article_topic != '"facebook"') or (article_topic != '"apple"') or (article_topic != '"t"'):
+        print ('article not to be classified')
+        return;
+
     classification = classify_new_article(article_content);
 
     if classification is not None:
@@ -42,7 +47,12 @@ def classify_new_article(article_content):
 
 def check_if_article_exists(article_id):
     dynamodb = boto3.resource('dynamodb')
-    table = dynamodb.Table('results')
+    if article_topic = '"facebook"':
+        table = dynamodb.Table('facebook_article_results')
+    elif article_topic = '"apple"':
+        table = dynamodb.Table('apple_article_results')
+    elif article_topic = '"t"':
+        table = dynamodb.Table('technology_article_results')
     pk_key = 'article_id'
     response = table.get_item(Key={pk_key: int(article_id)})
     if 'Item' in response.keys():
@@ -54,7 +64,12 @@ def check_if_article_exists(article_id):
 def insert_row(article_id,article_content,classification):
     print('--- inserting row ---')
     dynamodb = boto3.resource('dynamodb')
-    table = dynamodb.Table('results')
+    if article_topic = '"facebook"':
+        table = dynamodb.Table('facebook_article_results')
+    elif article_topic = '"apple"':
+        table = dynamodb.Table('apple_article_results')
+    elif article_topic = '"t"':
+        table = dynamodb.Table('technology_article_results')
     table.put_item(
         Item={
             'article_id' :  int(article_id),
@@ -65,13 +80,19 @@ def insert_row(article_id,article_content,classification):
 def update_row(article_id,classification):
     print('--- updating row ---')
     dynamodb = boto3.resource('dynamodb')
-    table = dynamodb.Table('results')
+    if article_topic = '"facebook"':
+        table = dynamodb.Table('facebook_article_results')
+    elif article_topic = '"apple"':
+        table = dynamodb.Table('apple_article_results')
+    elif article_topic = '"t"':
+        table = dynamodb.Table('technology_article_results')
+
     table.update_item(
-    Key={
-        'article_id': int(article_id),
-    },
-    UpdateExpression='SET support_vector_machine = :val1',
-    ExpressionAttributeValues={
-        ':val1': str(classification, 'utf-8')
-    }
-)
+        Key={
+            'article_id': int(article_id),
+        },
+        UpdateExpression='SET support_vector_machine = :val1',
+        ExpressionAttributeValues={
+            ':val1': str(classification, 'utf-8')
+        }
+    )
