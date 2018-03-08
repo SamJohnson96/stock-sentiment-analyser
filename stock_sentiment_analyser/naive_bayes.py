@@ -49,11 +49,11 @@ def classify_new_article(article_content):
 
 def check_if_article_exists(article_id,article_topic):
     dynamodb = boto3.resource('dynamodb')
-    if article_topic = '"facebook"':
+    if article_topic = 'facebook':
         table = dynamodb.Table('facebook_article_results')
-    elif article_topic = '"apple"':
+    elif article_topic = 'apple':
         table = dynamodb.Table('apple_article_results')
-    elif article_topic = '"t"':
+    elif article_topic = 'technology':
         table = dynamodb.Table('technology_article_results')
 
     pk_key = 'article_id'
@@ -67,11 +67,11 @@ def check_if_article_exists(article_id,article_topic):
 def insert_row(article_id,article_content,article_topic,classification):
     print('--- inserting row ---')
     dynamodb = boto3.resource('dynamodb')
-    if article_topic = '"facebook"':
+    if article_topic = 'facebook':
         table = dynamodb.Table('facebook_article_results')
-    elif article_topic = '"apple"':
+    elif article_topic = 'apple':
         table = dynamodb.Table('apple_article_results')
-    elif article_topic = '"t"':
+    elif article_topic = 'technology':
         table = dynamodb.Table('technology_article_results')
 
     table.put_item(
@@ -85,11 +85,11 @@ def insert_row(article_id,article_content,article_topic,classification):
 def update_row(article_id,article_topic,classification):
     print('--- updating row ---')
     dynamodb = boto3.resource('dynamodb')
-    if article_topic = '"facebook"':
+    if article_topic = 'facebook':
         table = dynamodb.Table('facebook_article_results')
-    elif article_topic = '"apple"':
+    elif article_topic = 'apple':
         table = dynamodb.Table('apple_article_results')
-    elif article_topic = '"t"':
+    elif article_topic = 'technology':
         table = dynamodb.Table('technology_article_results')
 
     table.update_item(
