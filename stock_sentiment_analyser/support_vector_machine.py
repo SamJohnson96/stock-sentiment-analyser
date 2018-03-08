@@ -10,14 +10,16 @@ from datetime import datetime
 def lambda_handler(event, context):
     for record in event['Records']:
         if 'NewImage' in record['dynamodb']:
-            article_content = record['dynamodb']['NewImage']['article_content']['S']
             article_id = record['dynamodb']['NewImage']['article_id']['N']
+            article_content = record['dynamodb']['NewImage']['article_content']['S']
+            article_topic = record['dynamodb']['NewImage']['classification']['S']
         else:
             print('No article to scrape')
             return;
     print('---- Parsing article ----')
 
-    if (article_topic != '"facebook"') or (article_topic != '"apple"') or (article_topic != '"t"'):
+    # Check to see if we need to carry on with classification.
+    if (article_topic != 'facebook') and (article_topic != 'apple') and (article_topic != 'technology'):
         print ('article not to be classified')
         return;
 
@@ -26,12 +28,12 @@ def lambda_handler(event, context):
     if classification is not None:
         print('---- Inserting/Updating row into parsed_articles ----')
         # Need to check if key exists
-        if check_if_article_exists(article_id):
+        if check_if_article_exists(article_id,article_topic):
             # Update row
-            update_row(article_id,classification)
+            update_row(article_id,article_topic,classification)
         else:
             #Insert into dynamoDb
-            insert_row(article_id,article_content,classification);
+            insert_row(article_id,article_content,article_topic,classification);
         print('---- Done ----')
 
 def classify_new_article(article_content):
@@ -45,14 +47,15 @@ def classify_new_article(article_content):
         print ('error occured during api called')
         return None
 
-def check_if_article_exists(article_id):
+def check_if_article_exists(article_id,article_topic):
     dynamodb = boto3.resource('dynamodb')
-    if article_topic = '"facebook"':
+    if article_topic == 'facebook':
         table = dynamodb.Table('facebook_article_results')
-    elif article_topic = '"apple"':
+    elif article_topic == 'apple':
         table = dynamodb.Table('apple_article_results')
-    elif article_topic = '"t"':
+    elif article_topic == 'technology':
         table = dynamodb.Table('technology_article_results')
+
     pk_key = 'article_id'
     response = table.get_item(Key={pk_key: int(article_id)})
     if 'Item' in response.keys():
@@ -61,15 +64,16 @@ def check_if_article_exists(article_id):
         return False
 
 # Insert row into Dynamodb table processed_articles
-def insert_row(article_id,article_content,classification):
+def insert_row(article_id,article_content,article_topic,classification):
     print('--- inserting row ---')
     dynamodb = boto3.resource('dynamodb')
-    if article_topic = '"facebook"':
+    if article_topic == 'facebook':
         table = dynamodb.Table('facebook_article_results')
-    elif article_topic = '"apple"':
+    elif article_topic == 'apple':
         table = dynamodb.Table('apple_article_results')
-    elif article_topic = '"t"':
+    elif article_topic == 'technology':
         table = dynamodb.Table('technology_article_results')
+
     table.put_item(
         Item={
             'article_id' :  int(article_id),
@@ -77,15 +81,17 @@ def insert_row(article_id,article_content,classification):
         }
     )
 
-def update_row(article_id,classification):
+# Update row into Dynamodb table
+def update_row(article_id,article_topic,classification):
     print('--- updating row ---')
     dynamodb = boto3.resource('dynamodb')
-    if article_topic = '"facebook"':
+    if article_topic == 'facebook':
         table = dynamodb.Table('facebook_article_results')
-    elif article_topic = '"apple"':
+    elif article_topic == 'apple':
         table = dynamodb.Table('apple_article_results')
-    elif article_topic = '"t"':
+    elif article_topic == 'technology':
         table = dynamodb.Table('technology_article_results')
+
     table.update_item(
         Key={
             'article_id': int(article_id),

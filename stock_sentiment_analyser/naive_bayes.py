@@ -19,7 +19,7 @@ def lambda_handler(event, context):
     print('---- Parsing article ----')
 
     # Check to see if we need to carry on with classification.
-    if (article_topic != 'facebook') and (article_topic != 'apple') and (article_topic != 't'):
+    if (article_topic != 'facebook') and (article_topic != 'apple') and (article_topic != 'technology'):
         print ('article not to be classified')
         return;
 
@@ -93,11 +93,11 @@ def update_row(article_id,article_topic,classification):
         table = dynamodb.Table('technology_article_results')
 
     table.update_item(
-    Key={
-        'article_id': int(article_id),
-    },
-    UpdateExpression='SET naive_bayes_classification = :val1',
-    ExpressionAttributeValues={
-        ':val1': str(classification, 'utf-8')
-    }
+        Key={
+            'article_id': int(article_id),
+        },
+        UpdateExpression='SET naive_bayes_classification = :val1',
+        ExpressionAttributeValues={
+            ':val1': str(classification, 'utf-8')
+        }
 )
