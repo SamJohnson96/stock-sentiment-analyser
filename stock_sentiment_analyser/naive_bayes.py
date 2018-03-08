@@ -28,12 +28,12 @@ def lambda_handler(event, context):
     if classification is not None:
         print('---- Inserting/Updating row into parsed_articles ----')
         # Need to check if key exists
-        if check_if_article_exists(article_id):
+        if check_if_article_exists(article_id,article_topic):
             # Update row
-            update_row(article_id,classification)
+            update_row(article_id,article_topic,classification)
         else:
             #Insert into dynamoDb
-            insert_row(article_id,article_content,classification);
+            insert_row(article_id,article_content,article_topic,classification);
         print('---- Done ----')
 
 def classify_new_article(article_content):
