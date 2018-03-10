@@ -25,6 +25,8 @@ def lambda_handler(event, context):
 
     classification = classify_new_article(article_content);
 
+    print (classification)
+
     if classification is not None:
         print('---- Inserting/Updating row into parsed_articles ----')
         # Need to check if key exists
