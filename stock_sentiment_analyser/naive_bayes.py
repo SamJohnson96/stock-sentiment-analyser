@@ -18,6 +18,8 @@ def lambda_handler(event, context):
             return;
     print('---- Parsing article ----')
 
+    print ('we are in here')
+
     # Check to see if we need to carry on with classification.
     if (article_topic != 'facebook') and (article_topic != 'apple') and (article_topic != 'technology'):
         print ('article not to be classified')
