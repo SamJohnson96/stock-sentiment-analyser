@@ -37,7 +37,7 @@ def lambda_handler(event, context):
         print('---- Done ----')
 
 def classify_new_article(article_content):
-    url = "https://2uaz4gpeyh.execute-api.eu-west-2.amazonaws.com/production/support-vector-machine"
+    url = "http://ec2-35-177-151-51.eu-west-2.compute.amazonaws.com/classify-svm"
     headers = {'Content-Type': 'application/json'}
     article_json = {"Article":{"content":article_content}}
     response = requests.post(url, headers=headers, json=article_json)

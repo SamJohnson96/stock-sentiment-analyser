@@ -18,8 +18,6 @@ def lambda_handler(event, context):
             return;
     print('---- Parsing article ----')
 
-    print ('we are in here')
-
     # Check to see if we need to carry on with classification.
     if (article_topic != 'facebook') and (article_topic != 'apple') and (article_topic != 'technology'):
         print ('article not to be classified')
@@ -39,7 +37,7 @@ def lambda_handler(event, context):
         print('---- Done ----')
 
 def classify_new_article(article_content):
-    url = "https://2uaz4gpeyh.execute-api.eu-west-2.amazonaws.com/production/naive-bayes"
+    url = "http://ec2-35-177-151-51.eu-west-2.compute.amazonaws.com/classify-naive"
     headers = {'Content-Type': 'application/json'}
     article_json = {"Article":{"content":article_content}}
     response = requests.post(url, headers=headers, json=article_json)
