@@ -79,7 +79,7 @@ def insert_row(article_id,article_content,article_topic,classification):
     table.put_item(
         Item={
             'article_id' :  int(article_id),
-            'naive_bayes_classification' : str(classification, 'utf-8')
+            'naive_bayes' : str(classification, 'utf-8')
         }
     )
 
@@ -98,8 +98,8 @@ def update_row(article_id,article_topic,classification):
         Key={
             'article_id': int(article_id),
         },
-        UpdateExpression='SET naive_bayes_classification = :val1',
+        UpdateExpression='SET naive_bayes = :val1',
         ExpressionAttributeValues={
             ':val1': str(classification, 'utf-8')
         }
-)
+    )
