@@ -18,6 +18,16 @@ K_NEAREST_FUNCTION_NAME = arn:aws:lambda:eu-west-2:329627156298:function:K_Neare
 K_NEAREST_FILE_NAME = k_nearest_neighbors
 K_NEAREST_HANDLER = lambda_handler
 
+# EXTRA TREES
+EXTRA_TREES_FUNCTION_NAME = arn:aws:lambda:eu-west-2:329627156298:function:ExtraTrees
+EXTRA_TREES_FILE_NAME = extra_trees_classifier.py
+EXTRA_TREES_HANDLER = lambda_handler
+
+# EXTRA TREES
+LINEAR_PERCEPTRON_FUNCTION_NAME = arn:aws:lambda:eu-west-2:329627156298:function:Linear_Perceptron
+LINEAR_PERCEPTRON_FILE_NAME = linear_perceptron.py
+LINEAR_PERCEPTRON_HANDLER = lambda_handler
+
 
 # BUILD AND CREATE PACKAGES
 build_naive_bayes: clean_package organise_naive_bayes
@@ -26,12 +36,20 @@ build_support_vector_machine: clean_package organise_support_vector_machine
 
 build_k_nearest: clean_package organise_k_nearest_neighbors
 
+build_extra_trees: clean_package organise_extra_trees
+
+build_linear_perceptron: clean_package organise_linear_perceptron
+
 # BUILD - DELETE - CREATE
 refresh_naive_bayes: build_naive_bayes naive_bayes_delete naive_bayes_create
 
 refresh_support_vector_machine: build_support_vector_machine support_vector_machine_delete support_vector_machine_create
 
 refresh_k_nearest: build_k_nearest k_nearest_delete k_nearest_create
+
+refresh_extra_trees: build_extra_trees extra_trees_delete extra_trees_create
+
+refresh_linear_perceptron: build_linear_perceptron linear_perceptron_delete linear_perceptron_create
 
 # CLEAN BUILD
 clean_package:
@@ -99,6 +117,46 @@ organise_k_nearest_neighbors:
   # Move to build/site-packages
 	cd build/site-packages; zip -g -r ../k_nearest_neighbors.zip . -x "*__pycache__*"
 
+organise_extra_trees:
+	# Make site-packages
+	mkdir -p build/site-packages
+
+	# Move
+	cp stock_sentiment_analyser/extra_trees_classifier.py build/site-packages
+
+	# Create virtual environment in build/support_vector_machine
+	virtualenv -p /usr/bin/python3.4 build/extra_trees
+
+	# Activate the virtual environment
+	. build/extra_trees/bin/activate; \
+
+	# Install dependencies in virtual environment
+	sudo python3 -m pip install -U requests -t build/site-packages/
+	sudo python3 -m pip install -U boto3 -t build/site-packages/
+
+  # Move to build/site-packages
+	cd build/site-packages; zip -g -r ../extra_trees_classifier.zip . -x "*__pycache__*"
+
+organise_linear_perceptron:
+	# Make site-packages
+	mkdir -p build/site-packages
+
+	# Move
+	cp stock_sentiment_analyser/linear_perceptron.py build/site-packages
+
+	# Create virtual environment in build/support_vector_machine
+	virtualenv -p /usr/bin/python3.4 build/linear_perceptron
+
+	# Activate the virtual environment
+	. build/linear_perceptron/bin/activate; \
+
+	# Install dependencies in virtual environment
+	sudo python3 -m pip install -U requests -t build/site-packages/
+	sudo python3 -m pip install -U boto3 -t build/site-packages/
+
+  # Move to build/site-packages
+	cd build/site-packages; zip -g -r ../linear_perceptron.zip . -x "*__pycache__*"
+
 # CREATION AWS CLI CALLS FOR EVERY METHOD.
 naive_bayes_create:
 	aws lambda create-function \
@@ -133,6 +191,28 @@ k_nearest_create:
 		--timeout 15 \
 		--memory-size 128
 
+extra_trees_create:
+	aws lambda create-function \
+		--region $(AWS_REGION) \
+		--role $(LAMBDA_ROLE) \
+		--function-name $(EXTRA_TREES_FUNCTION_NAME) \
+		--zip-file fileb://./build/extra_trees_classifier.zip \
+		--handler $(EXTRA_TREES_FILE_NAME).$(EXTRA_TREES_HANDLER) \
+		--runtime python3.6 \
+		--timeout 15 \
+		--memory-size 128
+
+linear_perceptron_create:
+	aws lambda create-function \
+		--region $(AWS_REGION) \
+		--role $(LAMBDA_ROLE) \
+		--function-name $(LINEAR_PERCEPTRON_FUNCTION_NAME) \
+		--zip-file fileb://./build/linear_perceptron.zip \
+		--handler $(LINEAR_PERCEPTRON_FILE_NAME).$(LINEAR_PERCEPTRON_HANDLER) \
+		--runtime python3.6 \
+		--timeout 15 \
+		--memory-size 128
+
 # DELETION AWS CLI CALLS FOR EVERY METHOD
 naive_bayes_delete:
 	aws lambda delete-function \
@@ -145,3 +225,11 @@ support_vector_machine_delete:
 k_nearest_delete:
 	aws lambda delete-function \
 		--function-name $(K_NEAREST_FUNCTION_NAME)
+
+extra_trees_delete:
+	aws lambda delete-function \
+		--function-name $(EXTRA_TREES_FUNCTION_NAME)
+
+linear_perceptron_delete:
+	aws lambda delete-function \
+		--function-name $(LINEAR_PERCEPTRON_FUNCTION_NAME)
