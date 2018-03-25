@@ -26,19 +26,11 @@ def lambda_handler(event, context):
 
     classification = classify_new_article(article_content);
 
-    print (classification)
-
     if classification is not None:
-        print('---- Inserting/Updating row into parsed_articles ----')
+        print('---- Inserting row into sector ----')
         # Need to check if key exists
-        if check_if_article_exists(article_id,article_topic):
-            print('article does exist')
-            # Update row
-            update_row(article_id,article_topic,classification)
-        else:
-            print('article does not exist')
-            #Insert into dynamoDb
-            insert_row(article_id,article_content,article_topic,classification);
+        #Insert into dynamoDb
+        insert_row(article_id,article_content,article_topic,classification);
         print('---- Done ----')
 
 def classify_new_article(article_content):
@@ -51,22 +43,6 @@ def classify_new_article(article_content):
     else:
         print ('error occured during api called')
         return None
-
-def check_if_article_exists(article_id,article_topic):
-    dynamodb = boto3.resource('dynamodb')
-    if article_topic == 'facebook':
-        table = dynamodb.Table('facebook_article_results')
-    elif article_topic == 'apple':
-        table = dynamodb.Table('apple_article_results')
-    elif article_topic == 'technology':
-        table = dynamodb.Table('technology_article_results')
-
-    pk_key = 'article_id'
-    response = table.get_item(Key={pk_key: int(article_id)})
-    if 'Item' in response.keys():
-        return True
-    else:
-        return False
 
 # Insert row into Dynamodb table
 def insert_row(article_id,article_content,article_topic,classification):
@@ -83,26 +59,5 @@ def insert_row(article_id,article_content,article_topic,classification):
         Item={
             'article_id' :  int(article_id),
             'naive_bayes' : str(classification, 'utf-8')
-        }
-    )
-
-# Update row into Dynamodb table
-def update_row(article_id,article_topic,classification):
-    print('--- updating row ---')
-    dynamodb = boto3.resource('dynamodb')
-    if article_topic == 'facebook':
-        table = dynamodb.Table('facebook_article_results')
-    elif article_topic == 'apple':
-        table = dynamodb.Table('apple_article_results')
-    elif article_topic == 'technology':
-        table = dynamodb.Table('technology_article_results')
-
-    table.update_item(
-        Key={
-            'article_id': int(article_id),
-        },
-        UpdateExpression='SET naive_bayes = :val1',
-        ExpressionAttributeValues={
-            ':val1': str(classification, 'utf-8')
         }
     )

@@ -33,16 +33,9 @@ def lambda_handler(event, context):
     print (classification)
 
     if classification is not None:
-        print('---- Inserting/Updating row into parsed_articles ----')
-        # Need to check if key exists
-        if check_if_article_exists(article_id,article_topic):
-            print('article exists')
-            # Update row
-            update_row(article_id,article_topic,classification)
-        else:
-            print('article does not exist')
-            #Insert into dynamoDb
-            insert_row(article_id,article_content,article_topic,classification);
+        print('---- Updating row into parsed_articles ----')
+        # Update row
+        update_row(article_id,article_topic,classification)
         print('---- Done ----')
 
 def classify_new_article(article_content):
@@ -56,42 +49,9 @@ def classify_new_article(article_content):
         print ('error occured during api called')
         return None
 
-def check_if_article_exists(article_id,article_topic):
-    dynamodb = boto3.resource('dynamodb')
-    if article_topic == 'facebook':
-        table = dynamodb.Table('facebook_article_results')
-    elif article_topic == 'apple':
-        table = dynamodb.Table('apple_article_results')
-    elif article_topic == 'technology':
-        table = dynamodb.Table('technology_article_results')
-
-    pk_key = 'article_id'
-    response = table.get_item(Key={pk_key: int(article_id)})
-    if 'Item' in response.keys():
-        return True
-    else:
-        return False
-
-# Insert row into Dynamodb table
-def insert_row(article_id,article_content,article_topic,classification):
-    print('--- inserting row ---')
-    dynamodb = boto3.resource('dynamodb')
-    if article_topic == 'facebook':
-        table = dynamodb.Table('facebook_article_results')
-    elif article_topic == 'apple':
-        table = dynamodb.Table('apple_article_results')
-    elif article_topic == 'technology':
-        table = dynamodb.Table('technology_article_results')
-
-    table.put_item(
-        Item={
-            'article_id' :  int(article_id),
-            'k_nearest' : str(classification, 'utf-8')
-        }
-    )
-
 # Update row into Dynamodb table
 def update_row(article_id,article_topic,classification):
+    time.sleep(3)
     print('--- updating row ---')
     dynamodb = boto3.resource('dynamodb')
     if article_topic == 'facebook':
