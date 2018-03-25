@@ -132,7 +132,7 @@ k_nearest_create:
 		--runtime python3.6 \
 		--timeout 15 \
 		--memory-size 128
-		
+
 # DELETION AWS CLI CALLS FOR EVERY METHOD
 naive_bayes_delete:
 	aws lambda delete-function \
@@ -144,4 +144,4 @@ support_vector_machine_delete:
 
 k_nearest_delete:
 	aws lambda delete-function \
-		--function-name $(SUPPORT_VECTOR_MACHINE_FUNCTION_NAME)
+		--function-name $(K_NEAREST_FUNCTION_NAME)
