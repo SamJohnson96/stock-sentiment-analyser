@@ -20,12 +20,12 @@ K_NEAREST_HANDLER = lambda_handler
 
 # EXTRA TREES
 EXTRA_TREES_FUNCTION_NAME = arn:aws:lambda:eu-west-2:329627156298:function:ExtraTrees
-EXTRA_TREES_FILE_NAME = extra_trees_classifier.py
+EXTRA_TREES_FILE_NAME = extra_trees_classifier
 EXTRA_TREES_HANDLER = lambda_handler
 
 # EXTRA TREES
 LINEAR_PERCEPTRON_FUNCTION_NAME = arn:aws:lambda:eu-west-2:329627156298:function:Linear_Perceptron
-LINEAR_PERCEPTRON_FILE_NAME = linear_perceptron.py
+LINEAR_PERCEPTRON_FILE_NAME = linear_perceptron
 LINEAR_PERCEPTRON_HANDLER = lambda_handler
 
 
