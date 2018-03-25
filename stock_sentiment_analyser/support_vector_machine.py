@@ -18,6 +18,7 @@ def lambda_handler(event, context):
             return;
     print('---- Parsing article ----')
 
+    print(article_topic)
     # Check to see if we need to carry on with classification.
     if (article_topic != 'facebook') and (article_topic != 'apple') and (article_topic != 'technology'):
         print ('article not to be classified')
@@ -31,9 +32,11 @@ def lambda_handler(event, context):
         print('---- Inserting/Updating row into parsed_articles ----')
         # Need to check if key exists
         if check_if_article_exists(article_id,article_topic):
+            print('article_exists')
             # Update row
             update_row(article_id,article_topic,classification)
         else:
+            print('doesnt exist')
             #Insert into dynamoDb
             insert_row(article_id,article_content,article_topic,classification);
         print('---- Done ----')
