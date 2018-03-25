@@ -22,6 +22,7 @@ def lambda_handler(event, context):
     print(article_topic)
 
 
+    print(article_topic)
     # Check to see if we need to carry on with classification.
     if (article_topic != 'facebook') and (article_topic != 'apple') and (article_topic != 'technology'):
         print ('article not to be classified')
