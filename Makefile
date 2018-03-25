@@ -51,6 +51,8 @@ refresh_extra_trees: build_extra_trees extra_trees_delete extra_trees_create
 
 refresh_linear_perceptron: build_linear_perceptron linear_perceptron_delete linear_perceptron_create
 
+refresh_all: refresh_naive_bayes refresh_support_vector_machine refresh_k_nearest refresh_extra_trees refresh_linear_perceptron
+
 # CLEAN BUILD
 clean_package:
 	# Clean the build folder
